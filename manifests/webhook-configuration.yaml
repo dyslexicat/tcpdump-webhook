@@ -1,0 +1,21 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: tcpdump-webhook
+webhooks:
+  - name: tcpdump-webhook.webhook-demo.svc
+    failurePolicy: Fail
+    clientConfig:
+      service:
+        name: tcpdump-webhook
+        namespace: webhook-demo
+        path: "/mutate"
+      caBundle: "CHANGE_ME"
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
+    timeoutSeconds: 5

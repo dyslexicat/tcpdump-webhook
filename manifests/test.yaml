@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: test-demo
+    tcpdump-sidecar: "true"
+  name: test-demo
+  namespace: webhook-demo
+spec:
+  containers:
+  - image: nginx
+    name: test-demo

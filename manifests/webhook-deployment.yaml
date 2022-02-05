@@ -1,0 +1,58 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ssl-tcpdump-webhook
+  namespace: webhook-demo
+data:
+  server.crt: |
+    -----BEGIN CERTIFICATE-----
+    -----END CERTIFICATE-----
+  server.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    -----END RSA PRIVATE KEY-----
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tcpdump-webhook
+  namespace: webhook-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: tcpdump-webhook
+  template:
+    metadata:
+      labels:
+        component: tcpdump-webhook
+    spec:
+      containers:
+      - name: tcpdump-ws
+        image: dyslexicat/tcpdump-webhook
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: 8443
+        volumeMounts:
+        - name: ssl-tcpdump-webhook
+          mountPath: /ssl
+      volumes:
+      - name: ssl-tcpdump-webhook
+        configMap:
+          name: ssl-tcpdump-webhook
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: webhook-demo
+  name: tcpdump-webhook
+spec:
+  selector:
+    component: tcpdump-webhook
+  ports:
+  - name: http
+    port: 443
+    targetPort: 8443
